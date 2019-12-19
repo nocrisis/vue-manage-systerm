@@ -35,7 +35,11 @@
       </el-table>
     </div>
     <div class="user_list"></div>
-    <Dialog :dialog="dialog" :list="tableData"></Dialog>
+    <Dialog
+      :dept_dialog="dept_dialog"
+      @updateData="getDeptTree"
+      :list="tableData"
+    ></Dialog>
   </div>
 </template>
 <script>
@@ -45,7 +49,7 @@ export default {
   data() {
     return {
       tableData: [],
-      dialog: {
+      dept_dialog: {
         show: false
       }
     }
@@ -78,7 +82,7 @@ export default {
       console.log(index, row)
     },
     handleAdd() {
-      this.dialog.show = true
+      this.dept_dialog.show = true
     }
   },
   components: {

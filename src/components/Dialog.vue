@@ -2,12 +2,16 @@
   <el-dialog
     title="添加部门"
     :modal-append-to-body="false"
-    :visible.sync="dialog.show"
+    :visible.sync="dept_dialog.show"
     :close-on-click-modal="false"
   >
-    <el-form>
-      <el-form-item label="部门名称">
-        <el-input autocomplete="off" maxlength="10"></el-input>
+    <el-form ref="deptFormRef" :rules="dept_rules" :model="addDepart">
+      <el-form-item prop="name" label="部门名称">
+        <el-input
+          autocomplete="off"
+          v-model="addDepart.name"
+          maxlength="10"
+        ></el-input>
       </el-form-item>
       <!-- <el-form-item label="上级部门">
         <el-select placeholder="请选择上级部门">
@@ -19,7 +23,7 @@
           ></el-option>
         </el-select>
       </el-form-item> -->
-      <el-form-item label="上级部门">
+      <el-form-item prop="parentId" label="上级部门">
         <SelectTree
           :props="props"
           :options="list"
@@ -29,16 +33,26 @@
           @getValue="getValue($event)"
         />
       </el-form-item>
-      <el-form-item label="排序比重">
-        <el-input-number min="0" max="7"></el-input-number>
+      <el-form-item prop="seq" label="显示顺序序号">
+        <el-input-number
+          v-model="addDepart.seq"
+          :min="1"
+          :max="10"
+        ></el-input-number>
       </el-form-item>
-      <el-form-item label="备注">
-        <el-input type="textarea" maxlength="300"></el-input>
+      <el-form-item prop="memo" label="备注">
+        <el-input
+          type="textarea"
+          v-model="addDepart.memo"
+          maxlength="150"
+        ></el-input>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="dialog.show = false">取 消</el-button>
-      <el-button type="primary" @click="dialog.show = false">确 定</el-button>
+      <el-button @click="dept_dialog.show = false">取 消</el-button>
+      <el-button type="primary" @click="submitDept('deptFormRef')"
+        >确 定</el-button
+      >
     </div>
   </el-dialog>
 </template>
@@ -46,12 +60,12 @@
 <script>
 import SelectTree from '../components/treeSelect.vue'
 export default {
-  name: 'dialog',
+  name: 'dept_dialog',
   components: {
     SelectTree
   },
   props: {
-    dialog: Object,
+    dept_dialog: Object,
     list: Array
   },
   data() {
@@ -65,6 +79,15 @@ export default {
         label: 'name',
         children: 'deptList'
         // disabled:true
+      },
+      addDepart: {
+        name: '',
+        parentId: '',
+        seq: '',
+        memo: ''
+      },
+      dept_rules: {
+        name: [{ required: true, message: '部门名称不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -72,7 +95,39 @@ export default {
     // 取值
     getValue(value) {
       this.valueId = value
-      console.log(this.valueId)
+      this.addDepart.parentId = this.valueId
+    },
+    submitDept(formRef) {
+      this.$refs[formRef].validate(valid => {
+        if (valid) {
+          console.log(this.addDepart)
+          this.$axios
+            .post('api/sys/dept/save.json', this.addDepart)
+            .then(res => {
+              let result = res.data
+              if (result.code == 200) {
+                this.$message({
+                  message: '添加部门成功',
+                  type: 'success'
+                })
+                this.dept_dialog.show = false
+                //通知父组件刷新列表
+                this.$emit('updateData')
+              } else {
+                this.$message({
+                  message: '添加部门失败' + result.msg,
+                  type: 'fail'
+                })
+              }
+            })
+            .catch(error => {
+              this.$message({
+                message: error,
+                type: 'fail'
+              })
+            })
+        }
+      })
     }
   }
 }
