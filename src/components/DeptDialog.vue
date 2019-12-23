@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="添加部门"
+    :title="dept_dialog.title"
     :modal-append-to-body="false"
     :visible.sync="dept_dialog.show"
     :close-on-click-modal="false"
@@ -38,6 +38,7 @@
           v-model="addDepart.seq"
           :min="1"
           :max="10"
+          :value="addDepart.seq"
         ></el-input-number>
       </el-form-item>
       <el-form-item prop="memo" label="备注">
@@ -66,7 +67,8 @@ export default {
   },
   props: {
     dept_dialog: Object,
-    list: Array
+    list: Array,
+    addDepart: Object
   },
   data() {
     return {
@@ -80,12 +82,7 @@ export default {
         children: 'deptList'
         // disabled:true
       },
-      addDepart: {
-        name: '',
-        parentId: '',
-        seq: '',
-        memo: ''
-      },
+
       dept_rules: {
         name: [{ required: true, message: '部门名称不能为空', trigger: 'blur' }]
       }
@@ -101,13 +98,16 @@ export default {
       this.$refs[formRef].validate(valid => {
         if (valid) {
           console.log(this.addDepart)
+          const url =
+            this.dept_dialog.option == 'add' ? 'save.json' : 'update.json'
+          const op = this.dept_dialog.option == 'add' ? '添加' : '编辑'
           this.$axios
-            .post('api/sys/dept/save.json', this.addDepart)
+            .post(`api/sys/dept/${url}`, this.addDepart)
             .then(res => {
               let result = res.data
               if (result.code == 200) {
                 this.$message({
-                  message: '添加部门成功',
+                  message: op + '部门成功',
                   type: 'success'
                 })
                 this.dept_dialog.show = false
@@ -115,7 +115,7 @@ export default {
                 this.$emit('updateData')
               } else {
                 this.$message({
-                  message: '添加部门失败' + result.msg,
+                  message: op + '部门失败' + result.msg,
                   type: 'fail'
                 })
               }

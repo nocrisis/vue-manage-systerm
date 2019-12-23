@@ -37,20 +37,30 @@
     <div class="user_list"></div>
     <Dialog
       :dept_dialog="dept_dialog"
+      :addDepart="addDepart"
       @updateData="getDeptTree"
       :list="tableData"
     ></Dialog>
   </div>
 </template>
 <script>
-import Dialog from '../components/Dialog'
+import Dialog from '../components/DeptDialog'
 
 export default {
   data() {
     return {
       tableData: [],
       dept_dialog: {
-        show: false
+        show: false,
+        title: '',
+        option: ''
+      },
+      addDepart: {
+        id: '',
+        name: '',
+        parentId: '',
+        seq: '',
+        memo: ''
       }
     }
   },
@@ -76,13 +86,33 @@ export default {
       })
     },
     handleEdit(index, row) {
-      console.log(index, row)
+      this.dept_dialog = { show: true, title: '修改部门信息', option: 'edit' }
+      this.addDepart = {
+        id: row.id,
+        name: row.name,
+        parentId: row.parentId,
+        seq: row.seq,
+        memo: row.memo
+      }
     },
     handleDelete(index, row) {
-      console.log(index, row)
+      this.$axios.delete(`/api/sys/dept/delete/${row.id}`).then(res => {
+        console.log('delete:', res)
+        if (res.data.code == 200) {
+          this.$message('删除成功！')
+        }
+        this.getDeptTree()
+      })
     },
     handleAdd() {
-      this.dept_dialog.show = true
+      this.dept_dialog = { show: true, title: '添加部门信息', option: 'add' }
+      this.addDepart = {
+        id: '',
+        name: '',
+        parentId: '',
+        seq: '',
+        memo: ''
+      }
     }
   },
   components: {
