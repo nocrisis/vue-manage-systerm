@@ -1,5 +1,10 @@
 <template>
-  <el-select :value="valueTitle" :clearable="clearable" @clear="clearHandle">
+  <el-select
+    :value="valueTitle"
+    :clearable="clearable"
+    @clear="clearHandle"
+    :placeholder="placeholder"
+  >
     <el-option :value="valueTitle" :label="valueTitle" class="options">
       <el-tree
         id="tree-option"
@@ -58,6 +63,12 @@ export default {
       default: () => {
         return false
       }
+    },
+    placeholder: {
+      type: String,
+      default: () => {
+        return '请选择'
+      }
     }
   },
   data() {
@@ -80,6 +91,11 @@ export default {
         ] // 初始化显示
         this.$refs.selectTree.setCurrentKey(this.valueId) // 设置默认选中
         this.defaultExpandedKey = [this.valueId] // 设置默认展开
+        // console.log('设置setCurrentKey', this.$refs.selectTree.getCurrentKey())
+      } else {
+        this.valueTitle = null // 初始化显示
+        this.$refs.selectTree.setCurrentKey(null) // 设置默认选中
+        // console.log('设置setCurrentKey为空')
       }
       this.initScroll()
     },
@@ -103,7 +119,6 @@ export default {
     handleNodeClick(node) {
       this.valueTitle = node[this.props.label]
       this.valueId = node[this.props.value]
-      console.log('当前选择 ' + this.valueId + this.valueTitle)
       this.$emit('getValue', this.valueId)
       this.defaultExpandedKey = []
     },
@@ -123,9 +138,9 @@ export default {
       allNode.forEach(element => element.classList.remove('is-current'))
     }
   },
-
   watch: {
-    value() {
+    value(newv, oldv) {
+      console.log('Select tree value changed', oldv + ' to ' + newv)
       this.valueId = this.value
       this.initHandle()
     }

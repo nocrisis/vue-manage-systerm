@@ -37,9 +37,9 @@
     <div class="user_list"></div>
     <Dialog
       :dept_dialog="dept_dialog"
-      :addDepart="addDepart"
+      :add_depart="add_depart"
       @updateData="getDeptTree"
-      :list="tableData"
+      :option_list="tableData"
     ></Dialog>
   </div>
 </template>
@@ -55,13 +55,13 @@ export default {
         title: '',
         option: ''
       },
-      addDepart: {
+      add_depart: {
         id: '',
         name: '',
         parentId: '',
         seq: '',
         memo: ''
-      }
+      },
     }
   },
   computed: {
@@ -87,7 +87,7 @@ export default {
     },
     handleEdit(index, row) {
       this.dept_dialog = { show: true, title: '修改部门信息', option: 'edit' }
-      this.addDepart = {
+      this.add_depart = {
         id: row.id,
         name: row.name,
         parentId: row.parentId,
@@ -106,7 +106,7 @@ export default {
     },
     handleAdd() {
       this.dept_dialog = { show: true, title: '添加部门信息', option: 'add' }
-      this.addDepart = {
+      this.add_depart = {
         id: '',
         name: '',
         parentId: '',

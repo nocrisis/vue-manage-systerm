@@ -5,11 +5,11 @@
     :visible.sync="dept_dialog.show"
     :close-on-click-modal="false"
   >
-    <el-form ref="deptFormRef" :rules="dept_rules" :model="addDepart">
+    <el-form ref="deptFormRef" :rules="dept_rules" :model="add_depart">
       <el-form-item prop="name" label="部门名称">
         <el-input
           autocomplete="off"
-          v-model="addDepart.name"
+          v-model="add_depart.name"
           maxlength="10"
         ></el-input>
       </el-form-item>
@@ -25,26 +25,27 @@
       </el-form-item> -->
       <el-form-item prop="parentId" label="上级部门">
         <SelectTree
-          :props="props"
-          :options="list"
+          :props="tree_props"
+          :options="option_list"
           :value="valueId"
           :clearable="isClearable"
           :accordion="isAccordion"
+          :placeholder="placeholderContent"
           @getValue="getValue($event)"
         />
       </el-form-item>
       <el-form-item prop="seq" label="显示顺序序号">
         <el-input-number
-          v-model="addDepart.seq"
+          v-model="add_depart.seq"
           :min="1"
           :max="10"
-          :value="addDepart.seq"
+          :value="add_depart.seq"
         ></el-input-number>
       </el-form-item>
       <el-form-item prop="memo" label="备注">
         <el-input
           type="textarea"
-          v-model="addDepart.memo"
+          v-model="add_depart.memo"
           maxlength="150"
         ></el-input>
       </el-form-item>
@@ -67,24 +68,41 @@ export default {
   },
   props: {
     dept_dialog: Object,
-    list: Array,
-    addDepart: Object
+    option_list: Array,
+    add_depart: Object
   },
   data() {
     return {
+      placeholderContent: '请选择上级部门',
       isClearable: true, // 可清空（可选）
       isAccordion: true, // 可收起（可选）
-      valueId: 1, // 初始ID（可选）
-      props: {
+      valueId: null, // 初始显示ID（可选）
+      tree_props: {
         // 配置项（必选）
         value: 'id',
         label: 'name',
         children: 'deptList'
         // disabled:true
       },
-
       dept_rules: {
         name: [{ required: true, message: '部门名称不能为空', trigger: 'blur' }]
+      }
+    }
+  },
+  watch: {
+    // valueId(newv, oldv) {
+    //   console.log('Dialog tree valueId changed', oldv + ' to ' + newv)
+    // },
+    //由于自己写的不像其他input有el封装的双向绑定填充数据变化而变化功能，
+    //select-tree组件需要在父组件监听每次dialog弹出并传递给子组件重新赋值当前value
+    dept_dialog(d) {
+      if (d.show) {
+        this.valueId =
+          d.option == 'edit'
+            ? this.add_depart.parentId == 0
+              ? null
+              : this.add_depart.parentId
+            : null
       }
     }
   },
@@ -92,17 +110,17 @@ export default {
     // 取值
     getValue(value) {
       this.valueId = value
-      this.addDepart.parentId = this.valueId
+      this.add_depart.parentId = this.valueId
     },
     submitDept(formRef) {
       this.$refs[formRef].validate(valid => {
         if (valid) {
-          console.log(this.addDepart)
+          console.log(this.add_depart)
           const url =
             this.dept_dialog.option == 'add' ? 'save.json' : 'update.json'
           const op = this.dept_dialog.option == 'add' ? '添加' : '编辑'
           this.$axios
-            .post(`api/sys/dept/${url}`, this.addDepart)
+            .post(`api/sys/dept/${url}`, this.add_depart)
             .then(res => {
               let result = res.data
               if (result.code == 200) {
