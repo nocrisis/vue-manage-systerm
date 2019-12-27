@@ -11,9 +11,9 @@
         </div>
         <div class="welcome">
           <p class="name comename">欢迎</p>
-          <p class="name avatarname">{{ user.username }}</p>
+          <p class="name avatarname">{{ user.name }}</p>
         </div>
-        <span class="username">
+        <span class="name">
           <!-- 下拉箭头 -->
           <el-dropdown trigger="click" @command="setDialogInfo">
             <span class="el-dropdown-link">
@@ -119,7 +119,7 @@ export default {
   color: #409eff;
   font-weight: bolder;
 }
-.username {
+.name {
   cursor: pointer;
   margin-right: 5px;
 }

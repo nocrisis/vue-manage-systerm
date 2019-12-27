@@ -10,10 +10,10 @@
           label-width="60px"
           class="login_form"
         >
-          <el-form-item label="邮箱" prop="email">
+          <el-form-item label="用户名" prop="name">
             <el-input
-              v-model="loginUser.email"
-              placeholder="请输入email"
+              v-model="loginUser.name"
+              placeholder="请输入邮箱或手机号"
             ></el-input>
           </el-form-item>
           <el-form-item label="密码" prop="password">
@@ -48,18 +48,34 @@ export default {
   name: 'login',
   components: {},
   data() {
+    var validateUsername = (rule, value, callback) => {
+      let regEmail = /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,4}$/
+      let regPhone = /^[1][3,4,5,7,8][0-9]{9}$/
+      if (value.indexOf('@') != -1) {
+        if (!regEmail.test(value)) {
+          callback(new Error('邮箱格式错误!'))
+        } else {
+          callback()
+        }
+      } else {
+        if (!regPhone.test(value)) {
+          callback(new Error('手机号格式错误!'))
+        } else {
+          callback()
+        }
+      }
+    }
     return {
       loginUser: {
-        email: '',
+        name: '',
         password: ''
       },
       rules: {
-        email: [
+        name: [
           {
-            type: 'email',
+            validator: validateUsername,
             required: true,
-            message: '请输入正确的邮箱',
-            trigger: 'change'
+            trigger: 'blur'
           }
         ],
         password: [
@@ -85,17 +101,24 @@ export default {
             .post('/api/sys/user/login', this.loginUser)
             .then(res => {
               console.log(res)
-              // const { token } = res.data
-              const token = res.data.data
-              //存储到ls
-              localStorage.setItem('eleToken', token)
-              //解析token
-              const decoded = jwt_decode(token)
-              console.log(decoded)
-              //token 存储到vuex中
-              this.$store.dispatch('setAuthenticated', !this.isEmpty(decoded))
-              this.$store.dispatch('setUser', decoded)
-              this.$router.push('/index')
+              let result = res.data
+              if (result.code == 200) {
+                const token = result.data
+                //存储到ls
+                localStorage.setItem('eleToken', token)
+                //解析token
+                const decoded = jwt_decode(token)
+                console.log(decoded)
+                //token 存储到vuex中
+                this.$store.dispatch('setAuthenticated', !this.isEmpty(decoded))
+                this.$store.dispatch('setUser', decoded)
+                this.$router.push('/index')
+              } else {
+                this.$message({
+                  message: result.msg,
+                  type: 'fail'
+                })
+              }
             })
             .catch(error => {
               this.$message({

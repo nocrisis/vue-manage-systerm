@@ -61,7 +61,7 @@ export default {
         parentId: '',
         seq: '',
         memo: ''
-      },
+      }
     }
   },
   computed: {
@@ -77,7 +77,7 @@ export default {
   },
   methods: {
     getDeptTree() {
-      this.$axios.post('/api/sys/dept/tree.json', this.loginUser).then(res => {
+      this.$axios.get('/api/sys/dept/tree.json').then(res => {
         let result = res.data
         console.log(result)
         if (result.code > 0) {

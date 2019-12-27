@@ -1,11 +1,11 @@
 <template>
   <div class="index">
     <HeadNav></HeadNav>
-
-    <LeftMenu></LeftMenu>
-
-    <!--二级路由 -->
-    <router-view></router-view>
+    <div class="container">
+      <LeftMenu></LeftMenu>
+      <!--二级路由 -->
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 <script>
@@ -24,5 +24,10 @@ export default {
   width: 100%;
   height: 100%;
   overflow: hidden;
+}
+.container {
+  height: 100%;
+  width: 100%;
+  display: flex;
 }
 </style>

@@ -16,6 +16,12 @@
               placeholder="请输入用户名"
             ></el-input>
           </el-form-item>
+          <el-form-item label="手机" prop="phone">
+            <el-input
+              v-model="registerUser.phone"
+              placeholder="请输入手机号"
+            ></el-input>
+          </el-form-item>
           <el-form-item label="邮箱" prop="email">
             <el-input
               v-model="registerUser.email"
@@ -36,11 +42,16 @@
               placeholder="请再次输入密码"
             ></el-input>
           </el-form-item>
-          <el-form-item label="选择身份">
-            <el-select v-model="registerUser.identity" placeholder="请选择身份">
-              <el-option label="管理员" value="manager"></el-option>
-              <el-option label="员工" value="employe"></el-option>
-            </el-select>
+          <el-form-item prop="deptId" label="所属部门">
+            <SelectTree
+              :props="tree_props"
+              :options="optionDept"
+              :value="valueId"
+              :clearable="isClearable"
+              :accordion="isAccordion"
+              :placeholder="placeholderContent"
+              @getValue="getValue($event)"
+            />
           </el-form-item>
           <el-form-item>
             <el-button @click="resetForm('registerForm')">重置</el-button>
@@ -54,9 +65,12 @@
   </div>
 </template>
 <script>
+import SelectTree from '../components/treeSelect.vue'
 export default {
   name: 'register',
-  components: {},
+  components: {
+    SelectTree
+  },
   data() {
     var validatePass2 = (rule, value, callback) => {
       if (value !== this.registerUser.password) {
@@ -66,13 +80,38 @@ export default {
         callback()
       }
     }
+    var checkPhone = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('手机号不能为空'))
+      }
+      setTimeout(() => {
+        if (!/^1(3|4|5|6|7|8|9)\d{9}$/.test(value)) {
+          callback(new Error('请填写正确的手机号'))
+        } else {
+          callback()
+        }
+      }, 500)
+    }
     return {
+      optionDept: [],
+      placeholderContent: '请选择所属部门',
+      isClearable: true, // 可清空（可选）
+      isAccordion: true, // 可收起（可选）
+      valueId: null, // 初始显示ID（可选）
+      tree_props: {
+        // 配置项（必选）
+        value: 'id',
+        label: 'name',
+        children: 'deptList'
+        // disabled:true
+      },
       registerUser: {
         name: '',
         email: '',
+        phone: '',
         password: '',
         password2: '',
-        identity: ''
+        deptId: ''
       },
       rules: {
         name: [
@@ -85,6 +124,13 @@ export default {
             required: true,
             message: '请输入正确的邮箱',
             trigger: 'blur'
+          }
+        ],
+        phone: [
+          {
+            validator: checkPhone,
+            trigger: 'blur',
+            required: true
           }
         ],
         password: [
@@ -114,7 +160,24 @@ export default {
       }
     }
   },
+  created() {
+    this.getDeptTree()
+  },
   methods: {
+    // SelectTree取选择中的option值
+    getValue(value) {
+      this.valueId = value
+      this.registerUser.deptId = this.valueId
+    },
+    getDeptTree() {
+      this.$axios.get('/api/sys/dept/tree.json').then(res => {
+        let result = res.data
+        console.log(result)
+        if (result.code > 0) {
+          this.optionDept = result.data
+        }
+      })
+    },
     submitForm(formName) {
       this.$refs[formName].validate(valid => {
         if (valid) {
@@ -124,7 +187,8 @@ export default {
             .post('/api/sys/user/register', this.registerUser)
             .then(res => {
               console.log(res)
-              if (res.code == 200) {
+              let result = res.data
+              if (result.code == 200) {
                 //注册成功
                 this.$message({
                   message: '账号注册成功！',
@@ -132,7 +196,7 @@ export default {
                 })
               } else {
                 this.$message({
-                  message: res.msg,
+                  message: result.msg,
                   type: 'fail'
                 })
               }

@@ -1,5 +1,5 @@
 <template>
-  <div class="infoshow">
+  <div class="fill_content">
     <el-row type="flex" class="row-bg" justify="center">
       <el-col :span="8">
         <div class="user">
@@ -10,14 +10,12 @@
         <div class="userinfo">
           <div class="user-item">
             <i class="el-icon-s-custom">
-              <span>{{ user.username }}</span>
+              <span>{{ user.name }}</span>
             </i>
           </div>
           <div class="user-item">
             <i class="el-icon-s-opportunity">
-              <span>{{
-                user.identity == 'manager' ? '管理员' : '普通员工'
-              }}</span>
+              <span>{{ user.deptName }}</span>
             </i>
           </div>
         </div>
@@ -36,12 +34,6 @@ export default {
 }
 </script>
 <style scoped>
-.infoshow {
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  background-color: beige;
-}
 .row-bg {
   width: 100%;
   height: 100%;

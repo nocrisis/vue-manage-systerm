@@ -78,7 +78,7 @@ export default {
 
 <style>
 .menu_page {
-  float: left;
+  width: 180px;
   min-height: 100%;
   background-color: #324057;
   z-index: 99;

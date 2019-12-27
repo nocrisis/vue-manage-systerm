@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import SelectTree from '../components/treeSelect.vue'
+import SelectTree from '../components/treeSelect'
 export default {
   name: 'dept_dialog',
   components: {
@@ -107,7 +107,7 @@ export default {
     }
   },
   methods: {
-    // 取值
+    // SelectTree取选择中的option值
     getValue(value) {
       this.valueId = value
       this.add_depart.parentId = this.valueId
