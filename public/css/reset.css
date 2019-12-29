@@ -151,4 +151,5 @@ table {
   flex-grow: 1;
   /* 右侧扩展延伸到剩余铺满 */
   box-sizing: border-box;
+  display: flex;
 }
