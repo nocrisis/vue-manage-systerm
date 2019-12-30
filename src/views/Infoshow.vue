@@ -10,7 +10,7 @@
         <div class="userinfo">
           <div class="user-item">
             <i class="el-icon-s-custom">
-              <span>{{ user.name }}</span>
+              <span>{{ user.username }}</span>
             </i>
           </div>
           <div class="user-item">

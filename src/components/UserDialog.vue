@@ -58,7 +58,12 @@
             :key="key"
             :label="value"
             :value="key"
-          ></el-option>
+          >
+            <span style="float: left">{{ value }}</span>
+            <span style="float: right; color: #8492a6; font-size: 13px">{{
+              key
+            }}</span></el-option
+          >
         </el-select>
       </el-form-item>
       <el-form-item prop="memo" label="备注">
@@ -168,6 +173,22 @@ export default {
             trigger: 'blur'
           },
           { validator: validatePass2, trigger: 'blur' }
+        ],
+        deptId: [
+          {
+            type: 'number',
+            required: true,
+            message: '所属部门不能为空',
+            trigger: 'blur'
+          }
+        ],
+        status: [
+          {
+            type: 'number',
+            required: true,
+            message: '状态不能为空',
+            trigger: 'blur'
+          }
         ]
       }
     }
@@ -180,7 +201,7 @@ export default {
     //select-tree组件需要在父组件监听每次dialog弹出并传递给子组件重新赋值当前初始化value
     user_dialog(d) {
       if (d.show) {
-        this.valueId = this.deptId
+        this.valueId = this.dept_id
       }
     }
   },

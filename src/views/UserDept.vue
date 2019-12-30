@@ -52,15 +52,15 @@
         border
         default-expand-all
       >
-        <el-table-column prop="id" label="ID" sortable width="70">
+        <el-table-column prop="id" label="ID" sortable width="40">
         </el-table-column>
         <el-table-column prop="username" label="用户名称" width="100">
         </el-table-column>
-        <el-table-column prop="telephone" label="手机号" width="150">
+        <el-table-column prop="telephone" label="手机号" width="120">
         </el-table-column>
         <el-table-column prop="password" label="密码" width="100">
         </el-table-column>
-        <el-table-column prop="mail" label="邮箱" width="150">
+        <el-table-column prop="mail" label="邮箱" width="180">
         </el-table-column>
         <el-table-column prop="memo" label="备注" width="100">
         </el-table-column>
@@ -85,6 +85,16 @@
           </template>
         </el-table-column>
       </el-table>
+      <el-pagination
+        :hide-on-single-page="true"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentPageChange"
+        :current-page.sync="queryParam.pageNo"
+        :page-size="queryParam.pageSize"
+        layout="total, prev, pager, next, jumper"
+        :total="userTotal"
+      >
+      </el-pagination>
     </div>
     <DeptDialog
       :dept_dialog="dept_dialog"
@@ -95,7 +105,7 @@
     <UserDialog
       :user_dialog="user_dialog"
       :add_user="add_user"
-      @updateUser="handleCurrentDeptChange(queryParam.deptId)"
+      @updateUser="getUserList"
       :dept_id="queryParam.deptId"
       :option_list="tableData"
       :status_enum="statusEnum"
@@ -114,12 +124,13 @@ export default {
         2: '删除'
       },
       queryParam: {
-        pageSize: 10,
+        pageSize: 2,
         pageNo: 1,
         deptId: 0
       },
       tableData: [],
       userList: [],
+      userTotal: 0,
       dept_dialog: {
         show: false,
         title: '',
@@ -145,6 +156,8 @@ export default {
         telephone: '',
         deptId: '',
         status: '',
+        // deptId: this.queryParam.deptId,
+        // status: 1, data定义的时候不能return间互相引用，不清楚初始化的顺序,用computed,或return内引用return前的
         memo: ''
       }
     }
@@ -201,6 +214,9 @@ export default {
     },
     handleCurrentDeptChange(curRow) {
       this.queryParam.deptId = curRow.id
+      this.getUserList()
+    },
+    getUserList() {
       console.log('queryparam', this.queryParam)
       this.$axios.post('/api/sys/user/list', this.queryParam).then(res => {
         console.log('listUser', res)
@@ -209,8 +225,11 @@ export default {
           let data = result.data
           if (data.total > 0) {
             this.userList = data.data
+            this.userTotal = data.total
           } else {
             this.userList = []
+            this.userTotal = 0
+            //必须设置为0,否则有页码的到0的判断total没变，依然显示页码
           }
         } else {
           this.$message(result.msg)
@@ -226,7 +245,7 @@ export default {
         mail: '',
         telephone: '',
         deptId: this.queryParam.deptId,
-        status: '',
+        status: 1,
         memo: ''
       }
     },
@@ -242,15 +261,23 @@ export default {
         status: row.status,
         memo: row.memo
       }
+    },
+    handleSizeChange(val) {
+      console.log(`change to 每页 ${val} 条`)
+      this.getUserList()
+    },
+    handleCurrentPageChange(val) {
+      console.log(`change to 当前页: ${val}`)
+      this.getUserList()
     }
   },
-  handleDeptDelete(index, row) {
+  handleUserDelete(index, row) {
     this.$axios.delete(`/api/sys/user/delete/${row.id}`).then(res => {
       console.log('delete:', res)
       if (res.data.code == 200) {
         this.$message('删除成功！')
       }
-      this.getDeptTree()
+      this.getUserList()
     })
   },
   components: {
