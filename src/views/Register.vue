@@ -10,21 +10,21 @@
           label-width="80px"
           class="register_form"
         >
-          <el-form-item label="用户名" prop="name">
+          <el-form-item label="用户名" prop="username">
             <el-input
-              v-model="registerUser.name"
+              v-model="registerUser.username"
               placeholder="请输入用户名"
             ></el-input>
           </el-form-item>
-          <el-form-item label="手机" prop="phone">
+          <el-form-item label="手机" prop="telephone">
             <el-input
-              v-model="registerUser.phone"
+              v-model="registerUser.telephone"
               placeholder="请输入手机号"
             ></el-input>
           </el-form-item>
-          <el-form-item label="邮箱" prop="email">
+          <el-form-item label="邮箱" prop="mail">
             <el-input
-              v-model="registerUser.email"
+              v-model="registerUser.mail"
               placeholder="请输入email"
             ></el-input>
           </el-form-item>
@@ -106,19 +106,19 @@ export default {
         // disabled:true
       },
       registerUser: {
-        name: '',
-        email: '',
-        phone: '',
+        username: '',
+        mail: '',
+        telephone: '',
         password: '',
         password2: '',
         deptId: ''
       },
       rules: {
-        name: [
+        username: [
           { required: true, message: '用户名不能为空', trigger: 'blur' },
           { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
         ],
-        email: [
+        mail: [
           {
             type: 'email',
             required: true,
@@ -126,7 +126,7 @@ export default {
             trigger: 'blur'
           }
         ],
-        phone: [
+        telephone: [
           {
             validator: checkPhone,
             trigger: 'blur',

@@ -56,13 +56,15 @@
         </el-table-column>
         <el-table-column prop="username" label="用户名称" width="100">
         </el-table-column>
-        <el-table-column prop="telephone" label="手机号" width="100">
+        <el-table-column prop="telephone" label="手机号" width="150">
         </el-table-column>
-        <el-table-column prop="mail" label="邮箱" width="100">
+        <el-table-column prop="password" label="密码" width="100">
+        </el-table-column>
+        <el-table-column prop="mail" label="邮箱" width="150">
         </el-table-column>
         <el-table-column prop="memo" label="备注" width="100">
         </el-table-column>
-        <el-table-column label="状态" width="100">
+        <el-table-column label="状态" width="50">
           <template slot-scope="scope">
             {{ statusEnum[scope.row.status] }}
           </template>
@@ -77,7 +79,7 @@
             <el-button
               size="mini"
               type="danger"
-              @click="handleDeptDelete(scope.$index, scope.row)"
+              @click="handleUserDelete(scope.$index, scope.row)"
               >删除</el-button
             >
           </template>
@@ -90,11 +92,19 @@
       @updateData="getDeptTree"
       :option_list="tableData"
     ></DeptDialog>
+    <UserDialog
+      :user_dialog="user_dialog"
+      :add_user="add_user"
+      @updateUser="handleCurrentDeptChange(queryParam.deptId)"
+      :dept_id="queryParam.deptId"
+      :option_list="tableData"
+      :status_enum="statusEnum"
+    ></UserDialog>
   </div>
 </template>
 <script>
 import DeptDialog from '../components/DeptDialog'
-
+import UserDialog from '../components/UserDialog'
 export default {
   data() {
     return {
@@ -106,11 +116,16 @@ export default {
       queryParam: {
         pageSize: 10,
         pageNo: 1,
-        deptId: ''
+        deptId: 0
       },
       tableData: [],
       userList: [],
       dept_dialog: {
+        show: false,
+        title: '',
+        option: ''
+      },
+      user_dialog: {
         show: false,
         title: '',
         option: ''
@@ -120,6 +135,16 @@ export default {
         name: '',
         parentId: '',
         seq: '',
+        memo: ''
+      },
+      add_user: {
+        id: '',
+        username: '',
+        password: '',
+        mail: '',
+        telephone: '',
+        deptId: '',
+        status: '',
         memo: ''
       }
     }
@@ -176,6 +201,7 @@ export default {
     },
     handleCurrentDeptChange(curRow) {
       this.queryParam.deptId = curRow.id
+      console.log('queryparam', this.queryParam)
       this.$axios.post('/api/sys/user/list', this.queryParam).then(res => {
         console.log('listUser', res)
         let result = res.data
@@ -183,21 +209,59 @@ export default {
           let data = result.data
           if (data.total > 0) {
             this.userList = data.data
+          } else {
+            this.userList = []
           }
         } else {
           this.$message(result.msg)
         }
       })
+    },
+    handleUserAdd() {
+      this.user_dialog = { show: true, title: '添加用户信息', option: 'add' }
+      this.add_user = {
+        id: '',
+        username: '',
+        password: '',
+        mail: '',
+        telephone: '',
+        deptId: this.queryParam.deptId,
+        status: '',
+        memo: ''
+      }
+    },
+    handleUserEdit(index, row) {
+      this.user_dialog = { show: true, title: '修改用户信息', option: 'edit' }
+      this.add_user = {
+        id: row.id,
+        username: row.username,
+        password: row.password,
+        mail: row.mail,
+        telephone: row.telephone,
+        deptId: row.deptId,
+        status: row.status,
+        memo: row.memo
+      }
     }
   },
+  handleDeptDelete(index, row) {
+    this.$axios.delete(`/api/sys/user/delete/${row.id}`).then(res => {
+      console.log('delete:', res)
+      if (res.data.code == 200) {
+        this.$message('删除成功！')
+      }
+      this.getDeptTree()
+    })
+  },
   components: {
-    DeptDialog
+    DeptDialog,
+    UserDialog
   }
 }
 </script>
 <style scoped>
 .dept_tree {
-  margin-right: 10%;
+  margin-right: 3%;
 }
 .user-list {
   flex-grow: 1;
