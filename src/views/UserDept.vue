@@ -269,17 +269,18 @@ export default {
     handleCurrentPageChange(val) {
       console.log(`change to 当前页: ${val}`)
       this.getUserList()
+    },
+    handleUserDelete(index, row) {
+      this.$axios.delete(`/api/sys/user/delete/${row.id}`).then(res => {
+        console.log('delete:', res)
+        if (res.data.code == 200) {
+          this.$message('删除成功！')
+        }
+        this.getUserList()
+      })
     }
   },
-  handleUserDelete(index, row) {
-    this.$axios.delete(`/api/sys/user/delete/${row.id}`).then(res => {
-      console.log('delete:', res)
-      if (res.data.code == 200) {
-        this.$message('删除成功！')
-      }
-      this.getUserList()
-    })
-  },
+
   components: {
     DeptDialog,
     UserDialog
