@@ -39,9 +39,9 @@ axios.interceptors.response.use(response => {
   error => {
     //错误提醒
     endLoading();
-    Message.error(error.response.msg);
     //获取错误状态码
-    const { status } = error.response.code;
+    const status = error.response.status;
+    console.log('status:', status)
     if (status == 401) {
       Message.error('token失效，请重新登录！');
       //清除过期token

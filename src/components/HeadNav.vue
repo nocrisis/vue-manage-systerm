@@ -11,7 +11,7 @@
         </div>
         <div class="welcome">
           <p class="name comename">欢迎</p>
-          <p class="name avatarname">{{ user.name }}</p>
+          <p class="name avatarname">{{ user.username }}</p>
         </div>
         <span class="name">
           <!-- 下拉箭头 -->

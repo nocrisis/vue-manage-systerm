@@ -10,9 +10,9 @@
           label-width="60px"
           class="login_form"
         >
-          <el-form-item label="用户名" prop="name">
+          <el-form-item label="用户名" prop="username">
             <el-input
-              v-model="loginUser.name"
+              v-model="loginUser.username"
               placeholder="请输入邮箱或手机号"
             ></el-input>
           </el-form-item>
@@ -71,7 +71,7 @@ export default {
         password: ''
       },
       rules: {
-        name: [
+        username: [
           {
             validator: validateUsername,
             required: true,
