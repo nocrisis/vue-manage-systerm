@@ -56,18 +56,18 @@ export default {
         {
           icon: 'el-icon-s-finance',
           name: '权限管理',
-          path: 'permission',
+          path: 'accesscontrol',
           children: [
             { path: 'userdept', name: '用户管理' },
             { path: 'role', name: '角色管理' },
-            { path: 'permission', name: '权限管理' },
+            { path: 'accesscontrol', name: '权限管理' },
             { path: 'permissionHis', name: '权限更新记录' }
           ]
         },
         {
           icon: 'el-icon-s-data',
           name: '系统管理',
-          path: 'permission',
+          path: 'accesscontrol',
           children: [{ path: 'infoshow', name: '个人信息' }]
         }
       ]

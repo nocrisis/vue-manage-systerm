@@ -8,6 +8,7 @@ import Home from '../views/Home'
 import Infoshow from '../views/Infoshow'
 import UserDept from '../views/UserDept'
 import Role from '../views/Role'
+import ModuleAcl from '../views/ModuleAcl'
 
 Vue.use(Router);
 
@@ -25,6 +26,7 @@ const router = new Router({
         { path: '/infoshow', name: 'infoshow', component: Infoshow },
         { path: '/userdept', name: 'userdept', component: UserDept },
         { path: '/role', name: 'role', component: Role },
+        { path: '/accesscontrol', name: 'accesscontrol', component: ModuleAcl },
       ]
     },
     { path: '/register', name: 'register', component: Register },
