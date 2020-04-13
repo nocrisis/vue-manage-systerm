@@ -58,10 +58,7 @@
         </el-table-column>
         <el-table-column label="权限模块" width="100">
           <template slot-scope="scope">
-            {{
-              aclModuleList.find((item) => item.id == scope.row.aclModuleId)
-                .name
-            }}
+            {{ getModuleName(scope.row.aclModuleId) }}
           </template>
         </el-table-column>
         <el-table-column prop="url" label="页面地址" width="170">
@@ -135,17 +132,17 @@ export default {
       statusEnum: {
         1: '正常',
         0: '冻结',
-        2: '删除',
+        2: '删除'
       },
       typeEnum: {
         1: '菜单',
         2: '按钮',
-        3: '其他',
+        3: '其他'
       },
       queryParam: {
         pageSize: 5,
         pageNo: 1,
-        aclModuleId: 0,
+        aclModuleId: 0
       },
       aclModuleList: [],
       aclList: [],
@@ -153,12 +150,12 @@ export default {
       module_dialog: {
         show: false,
         title: '',
-        option: '',
+        option: ''
       },
       acl_dialog: {
         show: false,
         title: '',
-        option: '',
+        option: ''
       },
       add_module: {
         id: '',
@@ -166,7 +163,7 @@ export default {
         parentId: '',
         seq: '',
         status: '',
-        memo: '',
+        memo: ''
       },
       add_acl: {
         id: '',
@@ -178,8 +175,8 @@ export default {
         seq: '',
         // aclModuleId: this.queryParam.aclModuleId,
         // status: 1, data定义的时候不能return间互相引用，不清楚初始化的顺序,用computed,或return内引用return前的
-        memo: '',
-      },
+        memo: ''
+      }
     }
   },
   computed: {
@@ -187,15 +184,15 @@ export default {
       //getter
       get: function() {
         return this.aclModuleList
-      },
-    },
+      }
+    }
   },
   created() {
     this.getModuleTree()
   },
   methods: {
     getModuleTree() {
-      this.$axios.get('/api/sys/aclModule/tree').then((res) => {
+      this.$axios.get('/api/sys/aclModule/tree').then(res => {
         let result = res.data
         console.log(result)
         if (result.code > 0) {
@@ -207,7 +204,7 @@ export default {
       this.module_dialog = {
         show: true,
         title: '修改权限模块信息',
-        option: 'edit',
+        option: 'edit'
       }
       this.add_module = {
         id: row.id,
@@ -215,11 +212,11 @@ export default {
         parentId: row.parentId,
         status: row.status,
         seq: row.seq,
-        memo: row.memo,
+        memo: row.memo
       }
     },
     handleModuleDelete(index, row) {
-      this.$axios.delete(`/api/sys/aclModule/delete/${row.id}`).then((res) => {
+      this.$axios.delete(`/api/sys/aclModule/delete/${row.id}`).then(res => {
         console.log('delete:', res)
         if (res.data.code == 200) {
           this.$message('删除成功！')
@@ -231,7 +228,7 @@ export default {
       this.module_dialog = {
         show: true,
         title: '添加权限模块信息',
-        option: 'add',
+        option: 'add'
       }
       this.add_module = {
         id: '',
@@ -239,7 +236,7 @@ export default {
         parentId: '',
         seq: '',
         status: String(1),
-        memo: '',
+        memo: ''
       }
     },
     handleCurrentModuleChange(curRow) {
@@ -247,9 +244,7 @@ export default {
       this.getAclList()
     },
     getAclList() {
-      console.log('queryparam', this.queryParam)
-      this.$axios.post('/api/sys/acl/list', this.queryParam).then((res) => {
-        console.log('listAcl', res)
+      this.$axios.post('/api/sys/acl/list', this.queryParam).then(res => {
         let result = res.data
         if (result.code == 200) {
           let data = result.data
@@ -276,7 +271,7 @@ export default {
         type: '',
         seq: '',
         status: String(1),
-        memo: '',
+        memo: ''
       }
     },
     handleAclEdit(index, row) {
@@ -290,7 +285,7 @@ export default {
         aclModuleId: row.aclModuleId,
         seq: row.seq,
         status: String(row.status),
-        memo: row.memo,
+        memo: row.memo
       }
     },
     handleSizeChange(val) {
@@ -302,7 +297,7 @@ export default {
       this.getAclList()
     },
     handleAclDelete(index, row) {
-      this.$axios.delete(`/api/sys/acl/delete/${row.id}`).then((res) => {
+      this.$axios.delete(`/api/sys/acl/delete/${row.id}`).then(res => {
         console.log('delete:', res)
         if (res.data.code == 200) {
           this.$message('删除成功！')
@@ -310,11 +305,36 @@ export default {
         this.getAclList()
       })
     },
+    searchModuleTree(aclModuleId, tree) {
+      let name
+      for (let i = 0; i < tree.length; i++) {
+        let module = tree[i]
+        console.log(module.id + '=>')
+        if (module.id === aclModuleId) {
+          return module.name
+        }
+        if (module.hasOwnProperty('aclModuleList')) {
+          if (module.aclModuleList) {
+            //必须用name接收，否则值不能层层返回栈底即最先一层
+            name = this.searchModuleTree(aclModuleId, module.aclModuleList)
+          }
+        } else {
+          return name
+        }
+      }
+      return name
+    },
+
+    getModuleName(aclModuleId) {
+      let name = this.searchModuleTree(aclModuleId, this.aclModuleList)
+      console.log(name)
+      return name
+    }
   },
   components: {
     ModuleDialog,
-    AclDialog,
-  },
+    AclDialog
+  }
 }
 </script>
 <style scoped>

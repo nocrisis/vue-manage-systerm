@@ -91,7 +91,7 @@ import { isNumber } from 'util'
 export default {
   name: 'acl_dialog',
   components: {
-    SelectTree
+    SelectTree,
   },
   props: {
     acl_dialog: Object,
@@ -99,7 +99,7 @@ export default {
     add_acl: Object,
     module_id: Number,
     status_enum: Object,
-    type_enum: Object
+    type_enum: Object,
   },
   data() {
     return {
@@ -111,48 +111,53 @@ export default {
         // 配置项（必选）
         value: 'id',
         label: 'name',
-        children: 'aclModuleList'
+        children: 'aclModuleList',
         // disabled:true
       },
       acl_rules: {
         name: [
           { required: true, message: '权限点名不能为空', trigger: 'blur' },
-          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+          {
+            min: 2,
+            max: 20,
+            message: '长度在 2 到 20 个字符',
+            trigger: 'blur',
+          },
         ],
         url: [
           { required: true, message: 'URL不能为空', trigger: 'blur' },
           {
-            min: 6,
+            min: 4,
             max: 100,
-            message: '长度在 6 到 100 个字符',
-            trigger: 'blur'
-          }
+            message: '长度在 4 到 100 个字符',
+            trigger: 'blur',
+          },
         ],
         aclModuleId: [
           {
             type: 'number',
             required: true,
             message: '所属权限模块不能为空',
-            trigger: 'blur'
-          }
+            trigger: 'blur',
+          },
         ],
         status: [
           {
             // type: 'string',因为object的key是string而不是number,key可以是String或Symbol,用其它类型的值作为key去取值或设值,会先转为字符串再进行get或set
             required: true,
             message: '状态不能为空',
-            trigger: 'change'
-          }
+            trigger: 'change',
+          },
         ],
         type: [
           {
             // type: 'string',
             required: true,
             message: '类型不能为空',
-            trigger: 'change'
-          }
-        ]
-      }
+            trigger: 'change',
+          },
+        ],
+      },
     }
   },
   watch: {
@@ -165,7 +170,7 @@ export default {
       if (d.show) {
         this.valueId = this.module_id
       }
-    }
+    },
   },
   methods: {
     // SelectTree取选择中的option值
@@ -174,19 +179,19 @@ export default {
       this.add_acl.aclModuleId = this.valueId
     },
     submitAcl(formRef) {
-      this.$refs[formRef].validate(valid => {
+      this.$refs[formRef].validate((valid) => {
         if (valid) {
           console.log(this.add_acl)
           const url = this.acl_dialog.option == 'add' ? 'add' : 'update'
           const op = this.acl_dialog.option == 'add' ? '添加' : '编辑'
           this.$axios
             .post(`api/sys/acl/${url}`, this.add_acl)
-            .then(res => {
+            .then((res) => {
               let result = res.data
               if (result.code == 200) {
                 this.$message({
                   message: op + '权限点成功',
-                  type: 'success'
+                  type: 'success',
                 })
                 this.acl_dialog.show = false
                 //通知父组件刷新列表
@@ -194,20 +199,20 @@ export default {
               } else {
                 this.$message({
                   message: op + '权限点失败' + result.msg,
-                  type: 'fail'
+                  type: 'fail',
                 })
               }
             })
-            .catch(error => {
+            .catch((error) => {
               this.$message({
                 message: error,
-                type: 'fail'
+                type: 'fail',
               })
             })
         }
       })
-    }
-  }
+    },
+  },
 }
 </script>
 <style scoped></style>

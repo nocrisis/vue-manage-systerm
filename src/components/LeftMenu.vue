@@ -61,18 +61,18 @@ export default {
             { path: 'userdept', name: '用户管理' },
             { path: 'role', name: '角色管理' },
             { path: 'accesscontrol', name: '权限管理' },
-            { path: 'permissionHis', name: '权限更新记录' }
-          ]
+            { path: 'permissionHis', name: '权限更新记录' },
+          ],
         },
         {
           icon: 'el-icon-s-data',
           name: '系统管理',
-          path: 'accesscontrol',
-          children: [{ path: 'infoshow', name: '个人信息' }]
-        }
-      ]
+          path: 'infoshow',
+          children: [{ path: 'infoshow', name: '个人信息' }],
+        },
+      ],
     }
-  }
+  },
 }
 </script>
 

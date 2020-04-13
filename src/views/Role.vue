@@ -44,7 +44,14 @@
         </el-aside>
         <el-main>
           <el-tabs type="border-card">
-            <el-tab-pane label="角色与权限">角色与权限</el-tab-pane>
+            <el-tab-pane label="角色与权限">
+              <el-button
+                icon="el-icon-plus"
+                type="danger"
+                @click="testTreeData()"
+                circle
+              ></el-button>
+            </el-tab-pane>
             <el-tab-pane label="角色与用户">角色与用户</el-tab-pane>
           </el-tabs></el-main
         ></el-container
@@ -147,6 +154,11 @@ export default {
       this.queryParam.roleId = curRow.id
       this.getUserList()
     }, */
+    testTreeData() {
+      this.$axios.get(`/api/sys/role/roleTree?roleId=0`).then((res) => {
+        console.log('roleTree', res)
+      })
+    },
   },
 
   components: {
