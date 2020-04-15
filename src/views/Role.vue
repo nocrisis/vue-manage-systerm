@@ -29,6 +29,8 @@
               <template slot-scope="scope">
                 <el-button
                   size="mini"
+                  type="primary"
+                  plain
                   @click="handleRoleEdit(scope.$index, scope.row)"
                   >编辑</el-button
                 >
@@ -45,12 +47,24 @@
         <el-main>
           <el-tabs type="border-card">
             <el-tab-pane label="角色与权限">
+              <el-tree
+                :data="aclTree"
+                show-checkbox
+                node-key="code"
+                :default-checked-keys="checkedKeys"
+                :highlight-current="true"
+                :props="treeProps"
+                ref="roleAclTree"
+              >
+              </el-tree>
               <el-button
-                icon="el-icon-plus"
-                type="danger"
-                @click="testTreeData()"
-                circle
-              ></el-button>
+                icon="el-icon-check"
+                type="primary"
+                @click="updateAclCheck()"
+                round
+              >
+                提交权限点更改</el-button
+              >
             </el-tab-pane>
             <el-tab-pane label="角色与用户">角色与用户</el-tab-pane>
           </el-tabs></el-main
@@ -87,7 +101,17 @@ export default {
         title: '',
         option: '',
       },
+      curRoleId: 0,
+      checkedKeys: [],
       roleList: [],
+      aclTree: [],
+      modulePrefix: 'm_',
+      aclPrefix: 'a_',
+      checkedIds: [],
+      treeProps: {
+        label: 'name',
+        children: 'children',
+      },
       add_role: {
         id: '',
         name: '',
@@ -150,14 +174,57 @@ export default {
         memo: '',
       }
     },
-    /* handleCurrentRoleChange(curRow) {
-      this.queryParam.roleId = curRow.id
-      this.getUserList()
-    }, */
-    testTreeData() {
-      this.$axios.get(`/api/sys/role/roleTree?roleId=0`).then((res) => {
-        console.log('roleTree', res)
+    handleCurrentRoleChange(curRow) {
+      this.curRoleId = curRow.id
+      this.aclTree = []
+      this.checkedKeys = []
+      this.getTreeData()
+    },
+    getTreeData() {
+      let params = { roleId: this.curRoleId }
+      this.$axios.get(`/api/sys/role/roleTree`, { params }).then((res) => {
+        let result = res.data
+        console.log('aclTree', result)
+        if (result.code > 0) {
+          // this.aclTree = result.data
+          this.renderTree(result.data, this.aclTree)
+          console.log(this.aclTree)
+        }
       })
+    },
+    renderTree(moduleList, parentArray) {
+      for (let i = 0; i < moduleList.length; i++) {
+        let module = moduleList[i]
+        //复制权限节点list到acls(若aclList为空，而moduleList不为空，先将空acl赋值给children,
+        //再在递归中用moduleList中的aclpush进父级的空children)
+        if (module.aclDTOList.length > 0 || module.aclModuleList.length > 0) {
+          let acls = []
+          module.aclDTOList.forEach((aclDTO) => {
+            let aclObj = {}
+            aclObj.id = this.aclPrefix + aclDTO.id
+            aclObj.name = aclDTO.name
+            //遍历的同时顺便取得选中的节点id
+            if (aclDTO.checked) {
+              this.checkedIds.push(aclObj.id)
+            }
+            aclObj.parent = this.modulePrefix + aclDTO.aclModuleId
+            acls.push(aclObj)
+          })
+          let moduleObj = {}
+          moduleObj.id = this.modulePrefix + module.Id
+          moduleObj.name = module.name
+          moduleObj.children = acls
+          parentArray.push(moduleObj)
+          if (module.aclModuleList.length > 0) {
+            this.renderTree(module.aclModuleList, moduleObj.children)
+          }
+        } else {
+          return
+        }
+      }
+    },
+    updateAclCheck() {
+      console.log(this.$refs.roleAclTree.getCheckedKeys())
     },
   },
 
