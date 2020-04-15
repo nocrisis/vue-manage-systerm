@@ -50,8 +50,8 @@
               <el-tree
                 :data="aclTree"
                 show-checkbox
-                node-key="code"
-                :default-checked-keys="checkedKeys"
+                node-key="id"
+                :default-checked-keys="checkedIds"
                 :highlight-current="true"
                 :props="treeProps"
                 ref="roleAclTree"
@@ -102,12 +102,11 @@ export default {
         option: '',
       },
       curRoleId: 0,
-      checkedKeys: [],
+      checkedIds: [],
       roleList: [],
       aclTree: [],
       modulePrefix: 'm_',
       aclPrefix: 'a_',
-      checkedIds: [],
       treeProps: {
         label: 'name',
         children: 'children',
@@ -177,7 +176,7 @@ export default {
     handleCurrentRoleChange(curRow) {
       this.curRoleId = curRow.id
       this.aclTree = []
-      this.checkedKeys = []
+      this.checkedIds = []
       this.getTreeData()
     },
     getTreeData() {
@@ -186,9 +185,7 @@ export default {
         let result = res.data
         console.log('aclTree', result)
         if (result.code > 0) {
-          // this.aclTree = result.data
           this.renderTree(result.data, this.aclTree)
-          console.log(this.aclTree)
         }
       })
     },
@@ -207,16 +204,16 @@ export default {
             if (aclDTO.checked) {
               this.checkedIds.push(aclObj.id)
             }
-            aclObj.parent = this.modulePrefix + aclDTO.aclModuleId
             acls.push(aclObj)
           })
           let moduleObj = {}
-          moduleObj.id = this.modulePrefix + module.Id
+          moduleObj.id = this.modulePrefix + module.id
           moduleObj.name = module.name
           moduleObj.children = acls
           parentArray.push(moduleObj)
           if (module.aclModuleList.length > 0) {
             this.renderTree(module.aclModuleList, moduleObj.children)
+            console.log('checkedIds', this.checkedIds)
           }
         } else {
           return
@@ -224,7 +221,26 @@ export default {
       }
     },
     updateAclCheck() {
-      console.log(this.$refs.roleAclTree.getCheckedKeys())
+      let checkedIds = this.$refs.roleAclTree.getCheckedKeys()
+      let aclCheckIds = []
+      checkedIds.forEach((item) => {
+        if (item.startsWith(this.aclPrefix)) {
+          aclCheckIds.push(parseInt(item.substring(this.aclPrefix.length)))
+        }
+      })
+      aclCheckIds.sort(function(m, n) {
+        if (m < n) return -1
+        else if (m > n) return 1
+        else return 0
+      })
+      let params = { roleId: this.curRoleId, aclIds: aclCheckIds.toString() }
+      this.$axios.get(`/api/sys/role/changeAcls`, { params }).then((res) => {
+        let result = res.data
+        console.log('changeAcls', result)
+        if (result.code > 0) {
+          console.log('更新权限成功')
+        }
+      })
     },
   },
 
