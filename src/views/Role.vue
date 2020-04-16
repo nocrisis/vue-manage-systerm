@@ -51,8 +51,8 @@
                 :data="aclTree"
                 show-checkbox
                 node-key="id"
+                :default-expanded-keys="checkedIds"
                 :default-checked-keys="checkedIds"
-                :highlight-current="true"
                 :props="treeProps"
                 ref="roleAclTree"
               >
@@ -183,9 +183,16 @@ export default {
       let params = { roleId: this.curRoleId }
       this.$axios.get(`/api/sys/role/roleTree`, { params }).then((res) => {
         let result = res.data
-        console.log('aclTree', result)
+        // console.log('aclTree', result)
         if (result.code > 0) {
           this.renderTree(result.data, this.aclTree)
+          // 由于tree控件dom没有加载,setCheckedKeys是不存在的，
+          // 所以我们需要使用this.$nextTick(callback)方法,该方法会在dom加载完毕之后,执行回调函数
+          this.$nextTick(() => {
+            this.$refs.roleAclTree.setCheckedKeys(this.checkedIds)
+          })
+          //此时依然为[]
+          //console.log(this.$refs.roleAclTree.getCheckedKeys())
         }
       })
     },
@@ -213,7 +220,6 @@ export default {
           parentArray.push(moduleObj)
           if (module.aclModuleList.length > 0) {
             this.renderTree(module.aclModuleList, moduleObj.children)
-            console.log('checkedIds', this.checkedIds)
           }
         } else {
           return
@@ -238,7 +244,10 @@ export default {
         let result = res.data
         console.log('changeAcls', result)
         if (result.code > 0) {
-          console.log('更新权限成功')
+          this.$message({
+            message: '更新权限成功',
+            type: 'success',
+          })
         }
       })
     },
